@@ -10,12 +10,12 @@ const server = http.createServer(app);
 
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: ["http://localhost:5173", "https://wingmann-henna.vercel.app"],
     methods: ["GET", "POST"]
   }
 });
 
-app.use(cors({ origin: "http://localhost:5173" }));
+app.use(cors({ origin: ["http://localhost:5173", "https://wingmann-henna.vercel.app"] }));
 app.use(express.json());
 
 // Store connected users in memory
