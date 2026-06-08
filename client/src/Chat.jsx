@@ -26,7 +26,7 @@ export default function Chat({ user, onLogout }) {
   }, []);
 
   useEffect(() => {
-    const socket = io("http://localhost:3001");
+    const socket = io("https://wingmann-server.onrender.com");
     socketRef.current = socket;
 
     if (Notification.permission === "default") {
