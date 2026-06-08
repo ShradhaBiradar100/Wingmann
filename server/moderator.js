@@ -114,7 +114,18 @@ function regexCheck(message) {
       return { blocked: true, reason: "Physical address detected" };
     }
   }
+const profanityList = [
+  /\bf+u+c+k/i, /\bsh+it/i, /\bb+itch/i,
+  /\basshole/i, /\bmotherfucker/i, /\bmf\b/i,
+  /\bcunt/i, /\bdick\b/i, /\bbastard/i,
+  /\bslut/i, /\bwhore/i
+];
 
+for (const pattern of profanityList) {
+  if (pattern.test(message)) {
+    return { blocked: true, reason: "Abusive language detected" };
+  }
+}
   return { blocked: false };
 }
 
