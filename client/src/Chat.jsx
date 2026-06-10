@@ -2,7 +2,7 @@ import { useState, useEffect, useRef } from 'react';
 import { io } from 'socket.io-client';
 import EmojiPicker from 'emoji-picker-react';
 
-const SERVER = 'http://localhost:3001';
+const SERVER = 'https://wingmann-server.onrender.com';
 const BLOCKED_MSG = 'To keep things safe, lets chat here until you meet at one of our partnered cafes';
 
 export default function Chat({ user, onLogout }) {
