@@ -138,7 +138,7 @@ export default function Chat({ user, onLogout }) {
 
   const selectUser = (u) => {
     setSelectedUser(u);
-    setNotifications(prev => ({ ...prev, [u.socketId]:0 }));
+    if (u.socketId) setNotifications(prev => ({ ...prev, [u.socketId]:0 }));
     if (isMobile) setShowSidebar(false);
   };
 
@@ -161,7 +161,7 @@ export default function Chat({ user, onLogout }) {
           <div style={{ padding:'20px 16px 14px', borderBottom:'1px solid #1a1a1a' }}>
             <div style={{ display:'flex', alignItems:'center', justifyContent:'space-between', marginBottom:'16px' }}>
               <div style={{ display:'flex', alignItems:'center', gap:'10px' }}>
-                <div style={{ width:32, height:32, borderRadius:'50%', background:'linear-gradient(135deg,#ac1ed6,#c26e73)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'14px', color:'#fff', fontWeight:700 }}>✦</div>
+                <div style={{ width:32, height:32, borderRadius:'8px', background:'#6b21a8', display:'flex', alignItems:'center', justifyContent:'center' }}><svg width="20" height="14" viewBox="0 0 60 40" fill="none"><path d="M5 35 Q15 5 20 20 Q25 35 30 20 Q35 5 40 20 Q45 35 55 5" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/></svg></div>
                 <span style={{ fontSize:'18px', fontWeight:700, color:'#fff', letterSpacing:'-0.3px' }}>Wingmann</span>
               </div>
               <button onClick={onLogout} style={{ fontSize:'11px', color:'#666', background:'#1a1a1a', border:'none', borderRadius:'20px', padding:'4px 10px', cursor:'pointer' }}>logout</button>
@@ -186,7 +186,7 @@ export default function Chat({ user, onLogout }) {
                 <Avatar name={u.name} photo={u.photo} size={42} />
                 <div style={{ flex:1, minWidth:0 }}>
                   <div style={{ fontSize:'14px', fontWeight:600, color:'#fff' }}>{u.name}</div>
-                  <div style={{ fontSize:'11px', color:typingUsers[u.socketId]?'#f97316':'#4ade80' }}>{typingUsers[u.socketId]?'typing...':'● active now'}</div>
+                  <div style={{ fontSize:'11px', color:typingUsers[u.socketId]?'#f97316':u.isOnline===false?'#666':'#4ade80' }}>{typingUsers[u.socketId]?'typing...':u.isOnline===false?'● offline':'● active now'}</div>
                 </div>
                 {notifications[u.socketId] > 0 && (
                   <div style={{ background:'linear-gradient(135deg,#ac1ed6,#c26e73)', color:'#fff', borderRadius:'50%', width:20, height:20, fontSize:'10px', display:'flex', alignItems:'center', justifyContent:'center', fontWeight:700 }}>{notifications[u.socketId]}</div>
@@ -268,7 +268,7 @@ export default function Chat({ user, onLogout }) {
                   onKeyDown={handleKeyDown} className='input-field' placeholder='Message...'
                   style={{ flex:1, background:'#1a1a1a', border:'1px solid #2a2a2a', borderRadius:'24px', padding:'10px 18px', fontSize:'14px', color:'#fff' }} />
                 <button onMouseDown={startRecording} onMouseUp={stopRecording} onTouchStart={startRecording} onTouchEnd={stopRecording}
-                  style={{ background:recording?'linear-gradient(135deg,#ac1ed6,#c26e73)':'#1a1a1a', border:'none', borderRadius:'50%', width:40, height:40, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'18px', transition:'all 0.2s' }}>🎤</button>
+                  style={{ background:recording?'linear-gradient(135deg,#ac1ed6,#c26e73)':'#1a1a1a', border:'none', borderRadius:'50%', width:40, height:40, cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'18px', transition:'all 0.2s' }}><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="white" strokeWidth="2" strokeLinecap="round"><line x1="4" y1="12" x2="4" y2="12"/><line x1="7" y1="8" x2="7" y2="16"/><line x1="10" y1="5" x2="10" y2="19"/><line x1="13" y1="8" x2="13" y2="16"/><line x1="16" y1="10" x2="16" y2="14"/><line x1="19" y1="12" x2="19" y2="12"/><line x1="22" y1="11" x2="22" y2="13"/></svg></button>
                 <button onClick={() => sendMessage()} style={{ width:40, height:40, borderRadius:'50%', background:'linear-gradient(135deg,#ac1ed6,#c26e73)', border:'none', cursor:'pointer', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'16px', color:'#fff' }}>➤</button>
               </div>
             </>

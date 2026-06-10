@@ -40,7 +40,17 @@ io.on('connection', (socket) => {
   socket.on('user_join', async (u) => {
     connectedUsers[socket.id] = { uid:u.uid, name:u.name, email:u.email, photo:u.photo, socketId:socket.id };
     await db.collection('users').doc(u.uid).set({ uid:u.uid, name:u.name, email:u.email, photo:u.photo, isOnline:true, lastSeen:admin.firestore.FieldValue.serverTimestamp() }, { merge:true });
-    io.emit('users_update', Object.values(connectedUsers));
+    // Send online + offline users
+    try {
+      const offlineSnap = await db.collection('users').where('isOnline','==',false).get();
+      const offlineUsers = offlineSnap.docs.map(d => ({ ...d.data(), socketId: null, isOnline: false }));
+      const onlineUsers = Object.values(connectedUsers);
+      const onlineUids = new Set(onlineUsers.map(u => u.uid));
+      const filteredOffline = offlineUsers.filter(u => !onlineUids.has(u.uid));
+      io.emit('users_update', [...onlineUsers, ...filteredOffline]);
+    } catch(e) {
+      io.emit('users_update', Object.values(connectedUsers));
+    }
     console.log(u.name + ' joined');
   });
 
@@ -78,7 +88,17 @@ io.on('connection', (socket) => {
     const u = connectedUsers[socket.id];
     if (u) await db.collection('users').doc(u.uid).update({ isOnline:false, lastSeen:admin.firestore.FieldValue.serverTimestamp() }).catch(function(){});
     delete connectedUsers[socket.id];
-    io.emit('users_update', Object.values(connectedUsers));
+    // Broadcast online users + fetch offline users from Firestore
+    try {
+      const offlineSnap = await db.collection('users').where('isOnline','==',false).get();
+      const offlineUsers = offlineSnap.docs.map(d => ({ ...d.data(), socketId: null, isOnline: false }));
+      const onlineUsers = Object.values(connectedUsers);
+      const onlineUids = new Set(onlineUsers.map(u => u.uid));
+      const filteredOffline = offlineUsers.filter(u => !onlineUids.has(u.uid));
+      io.emit('users_update', [...onlineUsers, ...filteredOffline]);
+    } catch(e) {
+      io.emit('users_update', Object.values(connectedUsers));
+    }
   });
 });
 
