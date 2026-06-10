@@ -16,6 +16,10 @@ const io = new Server(server, { cors: { origin: true, methods: ['GET','POST'] } 
 app.use(cors({ origin: true }));
 app.use(express.json());
 
+
+// Keep-alive ping endpoint
+app.get('/ping', (req, res) => res.json({ status: 'ok' }));
+
 app.get('/messages/:uid1/:uid2', async (req, res) => {
   const chatId = [req.params.uid1, req.params.uid2].sort().join('_');
   try {
