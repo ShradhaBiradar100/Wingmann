@@ -1,44 +1,50 @@
-import { useState, useEffect } from 'react';
-import { auth, provider } from './firebase';
-import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
-import Chat from './Chat';
+import { useState, useEffect } from "react";
+import { onAuthStateChanged, signInWithPopup, GoogleAuthProvider, signOut } from "firebase/auth";
+import { auth } from "./firebase";
+import LandingPage from "./LandingPage";
+import Chat from "./Chat";
 
 export default function App() {
+  const [stage, setStage] = useState("landing");
   const [user, setUser] = useState(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const unsub = onAuthStateChanged(auth, (u) => { setUser(u); setLoading(false); });
+    const unsub = onAuthStateChanged(auth, (u) => {
+      if (u) { setUser(u); setStage("chat"); }
+      else { setUser(null); setStage("landing"); }
+      setLoading(false);
+    });
     return () => unsub();
   }, []);
 
-  const handleGoogleLogin = async () => {
-    try { await signInWithPopup(auth, provider); }
-    catch (err) { console.error('Login error:', err); }
+  const handleLogin = async () => {
+    try {
+      const provider = new GoogleAuthProvider();
+      const result = await signInWithPopup(auth, provider);
+      setUser(result.user);
+      setStage("chat");
+    } catch (e) { console.error("Login failed:", e); }
   };
 
-  const handleLogout = async () => { await signOut(auth); setUser(null); };
+  const handleLogout = async () => {
+    await signOut(auth);
+    setUser(null);
+    setStage("landing");
+  };
 
   if (loading) return (
-    <div style={{ height:'100vh', width:'100vw', display:'flex', alignItems:'center', justifyContent:'center', background:'#090607' }}>
-      <div style={{ color:'#ac1ed6', fontSize:'16px' }}>Loading Wingmann...</div>
-    </div>
-  );
-
-  if (!user) return (
-    <div style={{ height:'100vh', width:'100vw', display:'flex', alignItems:'center', justifyContent:'center', background:'#090607' }}>
-      <div style={{ background:'#221f20', borderRadius:'24px', padding:'48px 40px', display:'flex', flexDirection:'column', alignItems:'center', gap:'20px', width:'320px', border:'1px solid rgba(172,30,214,0.2)' }}>
-        <div style={{ width:56, height:56, borderRadius:'50%', background:'linear-gradient(135deg,#ac1ed6,#c26e73)', display:'flex', alignItems:'center', justifyContent:'center', fontSize:'24px', color:'#fff' }}>✦</div>
-        <div style={{ fontSize:'28px', fontWeight:700, color:'#fff' }}>Wingmann</div>
-        <p style={{ color:'#888', textAlign:'center', fontSize:'14px', margin:0, lineHeight:1.6 }}>Connect, chat, and meet at our partnered cafes</p>
-        <button onClick={handleGoogleLogin} style={{ display:'flex', alignItems:'center', gap:'12px', background:'#fff', color:'#111', fontWeight:600, padding:'13px 24px', borderRadius:'50px', border:'none', cursor:'pointer', fontSize:'14px', width:'100%', justifyContent:'center' }}>
-          <img src='https://www.google.com/favicon.ico' alt='G' style={{ width:18 }} />
-          Continue with Google
-        </button>
-        <p style={{ color:'#555', fontSize:'11px', textAlign:'center', margin:0 }}>Keep conversations here until your first meetup</p>
+    <div style={{ height:"100vh", width:"100vw", display:"flex", alignItems:"center", justifyContent:"center", background:"#090607", flexDirection:"column", gap:"24px", fontFamily:"'Epilogue',sans-serif" }}>
+      <div style={{ width:56, height:56, borderRadius:"12px", background:"#6b21a8", display:"flex", alignItems:"center", justifyContent:"center" }}>
+        <svg width="32" height="22" viewBox="0 0 60 40" fill="none"><path d="M5 35 Q15 5 20 20 Q25 35 30 20 Q35 5 40 20 Q45 35 55 5" stroke="white" strokeWidth="5" strokeLinecap="round" fill="none"/></svg>
+      </div>
+      <div style={{ textAlign:"center" }}>
+        <div style={{ fontSize:"22px", fontWeight:700, color:"#fff", marginBottom:"8px" }}>Wingmann</div>
+        <div style={{ fontSize:"13px", color:"#555" }}>Loading...</div>
       </div>
     </div>
   );
 
+  if (stage === "landing") return <LandingPage onEnter={handleLogin} />;
   return <Chat user={user} onLogout={handleLogout} />;
 }

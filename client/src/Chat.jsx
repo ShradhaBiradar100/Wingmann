@@ -127,6 +127,7 @@ export default function Chat({ user, onLogout }) {
   const handleKeyDown = (e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); sendMessage(); } };
   const formatTime = (ts) => ts ? new Date(ts).toLocaleTimeString([], { hour:'2-digit', minute:'2-digit' }) : '';
   const currentMessages = messages[selectedUser?.socketId] || [];
+  const isSelectedOnline = users.some(u => u.socketId === selectedUser?.socketId);
 
   const Avatar = ({ name, photo, size=36 }) => (
     <div style={{ position:'relative', width:size, height:size, flexShrink:0 }}>
@@ -208,7 +209,7 @@ export default function Chat({ user, onLogout }) {
                 <Avatar name={selectedUser.name} photo={selectedUser.photo} size={40} />
                 <div style={{ flex:1 }}>
                   <div style={{ fontSize:'15px', fontWeight:600, color:'#fff' }}>{selectedUser.name}</div>
-                  <div style={{ fontSize:'11px', color:typingUsers[selectedUser.socketId]?'#f97316':'#4ade80' }}>{typingUsers[selectedUser.socketId]?'typing...':'● Active now'}</div>
+                  <div style={{ fontSize:'11px', color:typingUsers[selectedUser.socketId]?'#f97316':isSelectedOnline?'#4ade80':'#666' }}>{typingUsers[selectedUser.socketId]?'typing...':isSelectedOnline?'● Active now':'● Offline'}</div>
                 </div>
               </div>
               <div style={{ flex:1, overflowY:'auto', padding:'20px 16px', display:'flex', flexDirection:'column', gap:'10px' }}>
