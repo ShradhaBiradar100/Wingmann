@@ -69,3 +69,4 @@ export default function App() {
   );
   return <Chat user={user} onLogout={handleLogout} />;
 }
+
